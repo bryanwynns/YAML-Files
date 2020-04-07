@@ -1,0 +1,62 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: petclinic-service
+spec:
+  type: NodePort
+  ports:
+  - port: 8080
+  selector:
+    app: app-petclinic
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: petclinic-service-lb
+spec:
+  type: LoadBalancer
+  externalIPs:
+  - 192.168.1.55
+  ports:
+  - port: 8080
+  selector:
+    app: app-petclinic
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pcd
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: app-petclinic
+  template:
+    metadata:
+      labels:
+        app: app-petclinic
+    spec:
+      containers:
+      - name: petclinic
+        image: apmoptimize/petclinic
+        ports:
+        - containerPort: 8080
+        envFrom:
+            - configMapRef:
+                name: rvbd-instrumentation-env
+        env: 
+          - name: RVBD_DSAHOST
+            valueFrom:
+              fieldRef:
+                fieldPath: status.hostIP
+            #- name: RVBD_APP_CONFIG
+            #  value: new-config
+            #- name: RVBD_APP_INSTANCE
+            #  value: MyTomcatApp
+        volumeMounts:
+        - mountPath: /opt/Panorama
+          name: rvbd-files 
+      volumes:
+      - hostPath:
+          path: /opt/Panorama
+        name: rvbd-files
