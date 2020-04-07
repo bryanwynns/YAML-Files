@@ -1,6 +1,6 @@
 # .Net Core v3 application to be used with Aternity APM daemonset deployment
 # Externally access application on port 5000.  This script maps external port 5000 to the application's port 80
-# Change the externalIP to your master node IP.
+# Change the externalIP to your master node IP. 
 apiVersion: v1
 kind: Service
 metadata:
